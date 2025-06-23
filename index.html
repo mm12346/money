@@ -2,7 +2,8 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- UPDATED: Added properties to disable zoom -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
     <title>บันทึกรายรับ-รายจ่าย</title>
     
     <!-- PWA Meta Tags -->
@@ -400,7 +401,7 @@
             function registerServiceWorker() {
                 if ('serviceWorker' in navigator) {
                     const swCode = `
-                        const CACHE_NAME = 'expense-tracker-cache-v1';
+                        const CACHE_NAME = 'expense-tracker-cache-v2';
                         const SCRIPT_URL_IDENTIFIER = 'script.google.com';
                         // List of assets to cache on installation.
                         const PRECACHE_ASSETS = [
