@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บันทึกรายรับ-รายจ่าย</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3b82f6"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="รายรับ-รายจ่าย">
+    <link rel="apple-touch-icon" href="https://placehold.co/180x180/3b82f6/ffffff?text=App">
+    
+    <!-- PWA Manifest (Embedded) -->
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIuC4luC4pOC4o+C4s+C4muC4o+C4suC4meC4p+C4o+C4peC4seC4meC4l+C4suC4o+C4oSCIsCiAgInNob3J0X25hbWUiOiAi4LiF4Li04LiZ4Liy4Lij4LihIiwKICAiZGVzY3JpcHRpb24iOiAi4LmB4LiU4Liq4Liy4Lih4Li54LmJ4LiV4Li44LmA4LiI4LiV4LmI4Liy4Li44Lit4Liy4Lih4Li04LiZ4Liy4Lij4Lih4LiB4Liq4LiV4Liy4LiU4LihIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmMWY1ZzkiLAogICJ0aGVtZV9jb2xvciI6ICIjM2I4MmY2IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9wbGFjZWhvbGQuY28vMTkyeDE5Mi8zYjgyZjYvZmZmZmZmP3RleHQ9QXBwIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciLAogICAgICAicHVycG9zZSI6ICJhbnkiCiAgICB9LAogICAgewogICAgICAic3JjIjogImh0dHBzOi8vcGxhY2Vob2xkLmNvLzUxMng1MTIvM2I4MmY2L2ZmZmZmZj90ZXh0PUFwcCIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgInB1cnBvc2UiOiAiYW55IgogICAgfSwKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL3BsYWNlaG9sZC5jby81MTJ4NTEyLzNiODJmNi9mZmZmZmY/dGV4dD1BcH AiLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogIm1hc2thYmxlIgogICAgfQogIF0KfQo=">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .nav-item.active {
+            color: #3b82f6; /* text-blue-500 */
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div id="app" class="max-w-md mx-auto bg-white shadow-lg min-h-screen">
+        <!-- Main Content -->
+        <main id="main-content" class="p-4 pb-24">
+            <div id="loading" class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden">
+                <i class="fas fa-spinner fa-spin fa-3x text-blue-500"></i>
+            </div>
+            
+            <div id="summary-page" class="page">
+                <h1 class="text-2xl font-bold mb-4 text-gray-700">สรุปรายเดือน</h1>
+                <div class="mb-4">
+                    <label for="month-selector" class="block text-sm font-medium text-gray-600 mb-1">เลือกเดือน</label>
+                    <select id="month-selector" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></select>
+                </div>
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="bg-gray-100 border-l-4 border-gray-400 text-gray-700 p-4 rounded-lg shadow">
+                        <p class="text-sm">ยอดยกมา</p>
+                        <p id="summary-brought-forward" class="text-2xl font-bold">฿0.00</p>
+                    </div>
+                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow">
+                        <p class="text-sm">รายรับ (เดือนนี้)</p>
+                        <p id="summary-income" class="text-2xl font-bold">฿0.00</p>
+                    </div>
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow">
+                        <p class="text-sm">รายจ่าย (เดือนนี้)</p>
+                        <p id="summary-expense" class="text-2xl font-bold">฿0.00</p>
+                    </div>
+                    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg shadow">
+                        <p class="text-sm">คงเหลือสุทธิ</p>
+                        <p id="summary-balance" class="text-2xl font-bold">฿0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="record-page" class="page active">
+                <h1 class="text-2xl font-bold mb-4 text-gray-700">บันทึกรายการ</h1>
+                <form id="transaction-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">ประเภท</label>
+                        <select id="type" name="type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            <option value="รายรับ">รายรับ</option>
+                            <option value="รายจ่าย" selected>รายจ่าย</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-600 mb-1">คำอธิบาย</label>
+                        <input type="text" id="description" name="description" placeholder="เช่น ค่ากาแฟ, เงินเดือน" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+                    </div>
+                    <div>
+                        <label for="amount" class="block text-sm font-medium text-gray-600 mb-1">จำนวนเงิน</label>
+                        <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 active:bg-blue-700 transition shadow-md">
+                        <i class="fas fa-save mr-2"></i>บันทึก
+                    </button>
+                </form>
+                 <div id="message-box" class="mt-4 p-3 text-center rounded-lg hidden"></div>
+            </div>
+
+            <div id="history-page" class="page">
+                <h1 class="text-2xl font-bold mb-4 text-gray-700">ประวัติรายการทั้งหมด</h1>
+                <div id="history-list" class="space-y-3">
+                    <!-- History items will be inserted here -->
+                </div>
+            </div>
+        </main>
+
+        <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 flex justify-around shadow-top">
+            <button data-page="summary-page" class="nav-item flex-1 text-center py-3 text-gray-500 hover:bg-gray-100 transition">
+                <i class="fas fa-chart-pie fa-lg"></i>
+                <span class="block text-xs">สรุป</span>
+            </button>
+            <button data-page="record-page" class="nav-item active flex-1 text-center py-3 text-gray-500 hover:bg-gray-100 transition">
+                <i class="fas fa-plus-circle fa-lg"></i>
+                <span class="block text-xs">บันทึก</span>
+            </button>
+            <button data-page="history-page" class="nav-item flex-1 text-center py-3 text-gray-500 hover:bg-gray-100 transition">
+                <i class="fas fa-history fa-lg"></i>
+                <span class="block text-xs">ประวัติ</span>
+            </button>
+        </nav>
+    </div>
+
+    <div id="confirm-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <h3 class="text-lg font-bold mb-2">ยืนยันการลบ</h3>
+            <p id="confirm-modal-text" class="text-gray-600 mb-4">คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?</p>
+            <div class="flex justify-end space-x-2">
+                <button id="modal-cancel-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">ยกเลิก</button>
+                <button id="modal-confirm-btn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // !!! IMPORTANT: REPLACE WITH YOUR GOOGLE APPS SCRIPT URL !!!
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxkyhBHItzDBe5THvNBIgomFQBqITPLfMfRrgu1sPgoExW877h_qyXouAvWHvX6OWGG/exec'; 
+
+            const pages = document.querySelectorAll('.page');
+            const navItems = document.querySelectorAll('.nav-item');
+            const form = document.getElementById('transaction-form');
+            const loadingIndicator = document.getElementById('loading');
+            const messageBox = document.getElementById('message-box');
+            const monthSelector = document.getElementById('month-selector');
+            
+            const confirmModal = document.getElementById('confirm-modal');
+            const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+            const modalCancelBtn = document.getElementById('modal-cancel-btn');
+            let deleteResolver = null;
+
+            let transactions = [];
+
+            // --- Navigation ---
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const pageId = item.getAttribute('data-page');
+                    
+                    pages.forEach(page => page.classList.remove('active'));
+                    document.getElementById(pageId).classList.add('active');
+
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    if (pageId === 'summary-page') {
+                        populateMonthSelector();
+                        updateSummary(monthSelector.value);
+                    } else if (pageId === 'history-page') {
+                        renderHistory();
+                    }
+                });
+            });
+
+            // --- Data Fetching and Rendering ---
+            async function fetchTransactions() {
+                if (!SCRIPT_URL.startsWith('https://')) {
+                     showMessage('กรุณาตั้งค่า URL ของ Google Apps Script ก่อน', 'error');
+                     return;
+                }
+                showLoading(true);
+                try {
+                    const response = await fetch(SCRIPT_URL);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    transactions = data.records.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                    populateMonthSelector();
+                    updateSummary(monthSelector.value);
+                    renderHistory();
+                } catch (error) {
+                    console.error('Error fetching transactions:', error);
+                    showMessage('ไม่สามารถโหลดข้อมูลได้', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }
+            
+            function populateMonthSelector() {
+                const now = new Date();
+                const currentMonthValue = now.toISOString().substring(0, 7); 
+                const availableMonths = new Set(transactions.map(t => t.timestamp.substring(0, 7)));
+                availableMonths.add(currentMonthValue);
+                const sortedMonths = Array.from(availableMonths).sort().reverse();
+                
+                const currentSelectorValue = monthSelector.value;
+                monthSelector.innerHTML = ''; 
+                
+                sortedMonths.forEach(monthValue => {
+                    const option = document.createElement('option');
+                    option.value = monthValue;
+                    const dateFromValue = new Date(monthValue + '-02'); 
+                    option.textContent = dateFromValue.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+                    monthSelector.appendChild(option);
+                });
+                monthSelector.value = sortedMonths.includes(currentSelectorValue) ? currentSelectorValue : currentMonthValue;
+            }
+
+            monthSelector.addEventListener('change', () => {
+                updateSummary(monthSelector.value);
+            });
+
+            function updateSummary(selectedMonth) {
+                if (!selectedMonth) return;
+
+                const balanceBroughtForward = transactions
+                    .filter(t => t.timestamp.substring(0, 7) < selectedMonth)
+                    .reduce((balance, t) => t.type === 'รายรับ' ? balance + Number(t.amount) : balance - Number(t.amount), 0);
+
+                const monthlyTransactions = transactions.filter(t => t.timestamp.startsWith(selectedMonth));
+                const monthlyIncome = monthlyTransactions
+                    .filter(t => t.type === 'รายรับ')
+                    .reduce((sum, t) => sum + Number(t.amount), 0);
+                const monthlyExpense = monthlyTransactions
+                    .filter(t => t.type === 'รายจ่าย')
+                    .reduce((sum, t) => sum + Number(t.amount), 0);
+
+                const finalBalance = balanceBroughtForward + monthlyIncome - monthlyExpense;
+
+                const formatCurrency = (num) => `฿${num.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                
+                document.getElementById('summary-brought-forward').textContent = formatCurrency(balanceBroughtForward);
+                document.getElementById('summary-income').textContent = formatCurrency(monthlyIncome);
+                document.getElementById('summary-expense').textContent = formatCurrency(monthlyExpense);
+                document.getElementById('summary-balance').textContent = formatCurrency(finalBalance);
+            }
+
+            function renderHistory() {
+                const historyList = document.getElementById('history-list');
+                historyList.innerHTML = '';
+
+                if(transactions.length === 0){
+                    historyList.innerHTML = `<p class="text-center text-gray-500 mt-8">ยังไม่มีรายการ</p>`;
+                    return;
+                }
+                [...transactions].reverse().forEach(t => {
+                    const item = document.createElement('div');
+                    item.className = `p-3 rounded-lg flex items-center justify-between shadow-sm border ${t.type === 'รายรับ' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`;
+                    const amountColor = t.type === 'รายรับ' ? 'text-green-600' : 'text-red-600';
+                    item.innerHTML = `
+                        <div class="flex items-center">
+                             <div class="mr-3 text-center w-12">
+                                <span class="text-sm text-gray-500">${new Date(t.timestamp).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' })}</span>
+                                <span class="text-xs text-gray-400">${new Date(t.timestamp).toLocaleDateString('th-TH', { year: 'numeric' })}</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">${t.description}</p>
+                                <p class="text-sm ${amountColor} font-semibold">฿${Number(t.amount).toLocaleString('th-TH', { minimumFractionDigits: 2 })}</p>
+                            </div>
+                        </div>
+                        <button data-id="${t.id}" class="delete-btn text-gray-400 hover:text-red-500 transition px-2 py-1">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    `;
+                    historyList.appendChild(item);
+                });
+            }
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!SCRIPT_URL.startsWith('https://')) {
+                     showMessage('กรุณาตั้งค่า URL ของ Google Apps Script ก่อน', 'error');
+                     return;
+                }
+                showLoading(true);
+                const data = {
+                    action: 'add',
+                    id: `txid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, 
+                    timestamp: new Date().toISOString(),
+                    type: form.type.value,
+                    description: form.description.value,
+                    amount: form.amount.value,
+                };
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(data),
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showMessage('บันทึกสำเร็จ!', 'success');
+                        transactions.push(data);
+                        transactions.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                        populateMonthSelector();
+                        updateSummary(monthSelector.value);
+                        renderHistory();
+                        form.reset();
+                        document.getElementById('type').value = 'รายจ่าย';
+                    } else { throw new Error(result.message || 'Unknown error'); }
+                } catch (error) {
+                    console.error('Error saving transaction:', error);
+                    showMessage('เกิดข้อผิดพลาดในการบันทึก', 'error');
+                } finally { showLoading(false); }
+            });
+
+            document.getElementById('history-list').addEventListener('click', async (e) => {
+                const deleteButton = e.target.closest('.delete-btn');
+                if (deleteButton) {
+                    const id = deleteButton.dataset.id;
+                    const confirmed = await showConfirmationModal();
+                    if (confirmed) {
+                        if (!SCRIPT_URL.startsWith('https://')) {
+                             showMessage('กรุณาตั้งค่า URL ของ Google Apps Script ก่อน', 'error');
+                             return;
+                        }
+                        showLoading(true);
+                        try {
+                            const response = await fetch(SCRIPT_URL, {
+                                method: 'POST',
+                                body: JSON.stringify({ action: 'delete', id: id }),
+                                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            });
+                            const result = await response.json();
+                            if (result.status === 'success') {
+                                transactions = transactions.filter(t => t.id !== id);
+                                populateMonthSelector();
+                                updateSummary(monthSelector.value);
+                                renderHistory();
+                                showMessage('ลบรายการสำเร็จ', 'success');
+                            } else { throw new Error(result.message || 'Deletion failed'); }
+                        } catch (error) {
+                            console.error('Error deleting transaction:', error);
+                            showMessage('เกิดข้อผิดพลาดในการลบ', 'error', 'history-page');
+                        } finally { showLoading(false); }
+                    }
+                }
+            });
+            
+            function showConfirmationModal() {
+                confirmModal.classList.remove('hidden');
+                return new Promise(resolve => { deleteResolver = resolve; });
+            }
+            modalConfirmBtn.addEventListener('click', () => {
+                if (deleteResolver) deleteResolver(true);
+                confirmModal.classList.add('hidden');
+            });
+            modalCancelBtn.addEventListener('click', () => {
+                if (deleteResolver) deleteResolver(false);
+                confirmModal.classList.add('hidden');
+            });
+
+            function showLoading(isLoading) {
+                loadingIndicator.classList.toggle('hidden', !isLoading);
+            }
+            
+            function showMessage(text, type = 'success', onPage = 'record-page') {
+                const activePage = document.querySelector('.page.active');
+                let targetMessageBox = activePage ? activePage.querySelector('#message-box') : null;
+                if (!targetMessageBox) {
+                    targetMessageBox = document.querySelector('#record-page #message-box');
+                }
+                if (!targetMessageBox) return;
+
+                targetMessageBox.textContent = text;
+                targetMessageBox.className = 'mt-4 p-3 text-center rounded-lg'; 
+                targetMessageBox.classList.add(type === 'success' ? 'bg-green-100' : 'bg-red-100');
+                targetMessageBox.classList.add(type === 'success' ? 'text-green-800' : 'text-red-800');
+                targetMessageBox.classList.remove('hidden');
+
+                setTimeout(() => { targetMessageBox.classList.add('hidden'); }, 3000);
+            }
+
+            // --- PWA Service Worker Registration ---
+            function registerServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    const swCode = `
+                        const CACHE_NAME = 'expense-tracker-cache-v1';
+                        const SCRIPT_URL_IDENTIFIER = 'script.google.com';
+                        // List of assets to cache on installation.
+                        const PRECACHE_ASSETS = [
+                            '/', // The root document.
+                            'https://cdn.tailwindcss.com',
+                            'https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap',
+                            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+                        ];
+
+                        self.addEventListener('install', event => {
+                            event.waitUntil(
+                                caches.open(CACHE_NAME)
+                                    .then(cache => cache.addAll(PRECACHE_ASSETS))
+                                    .catch(err => console.error('Failed to cache assets on install:', err))
+                            );
+                        });
+
+                        self.addEventListener('activate', event => {
+                            // Clean up old caches
+                            event.waitUntil(
+                                caches.keys().then(cacheNames => {
+                                    return Promise.all(
+                                        cacheNames.filter(name => name !== CACHE_NAME)
+                                                  .map(name => caches.delete(name))
+                                    );
+                                })
+                            );
+                        });
+
+                        self.addEventListener('fetch', event => {
+                            // Always fetch Google Script data from network (Network First)
+                            if (event.request.url.includes(SCRIPT_URL_IDENTIFIER)) {
+                                event.respondWith(
+                                    fetch(event.request).catch(() => {
+                                        return new Response(
+                                            JSON.stringify({ status: 'error', message: 'Offline. Cannot reach server.' }),
+                                            { headers: { 'Content-Type': 'application/json' } }
+                                        );
+                                    })
+                                );
+                                return; 
+                            }
+
+                            // For all other requests, use a Cache First strategy.
+                            event.respondWith(
+                                caches.match(event.request).then(cachedResponse => {
+                                    if (cachedResponse) {
+                                        return cachedResponse; // Return from cache
+                                    }
+                                    // Not in cache, go to network
+                                    return fetch(event.request);
+                                })
+                            );
+                        });
+                    `;
+                    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(swBlob);
+
+                    window.addEventListener('load', () => {
+                        navigator.serviceWorker.register(swUrl)
+                            .then(registration => {
+                                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                            }).catch(err => {
+                                console.error('ServiceWorker registration failed: ', err);
+                            });
+                    });
+                }
+            }
+            
+            // --- Initial Load ---
+            fetchTransactions();
+            registerServiceWorker(); // Register the PWA service worker
+        });
+    </script>
+</body>
+</html>
