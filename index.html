@@ -67,35 +67,40 @@
             <div id="summary-page" class="page">
                 <h1 class="text-2xl font-bold mb-4 text-gray-700">สรุป</h1>
                 
-                <!-- NEW: Today's Summary Section -->
+                <!-- UPDATED: Today's Summary Section -->
                 <div class="mb-6">
                     <h2 class="text-lg font-semibold text-gray-600 mb-2">สรุปวันนี้</h2>
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow">
-                        <p class="text-sm">รายจ่ายวันนี้</p>
-                        <p id="summary-today-expense" class="text-2xl font-bold">฿0.00</p>
+                    <div class="grid grid-cols-2 gap-4">
+                         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow">
+                            <p class="text-sm">รายรับวันนี้</p>
+                            <p id="summary-today-income" class="text-2xl font-bold">฿0.00</p>
+                        </div>
+                        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow">
+                            <p class="text-sm">รายจ่ายวันนี้</p>
+                            <p id="summary-today-expense" class="text-2xl font-bold">฿0.00</p>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Monthly Summary Section -->
+                <!-- UPDATED: Monthly Summary Section Layout -->
                 <h2 class="text-lg font-semibold text-gray-600 mb-2">สรุปรายเดือน</h2>
                 <div class="mb-4">
                     <label for="month-selector" class="block text-sm font-medium text-gray-600 mb-1">เลือกเดือน</label>
                     <select id="month-selector" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></select>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow">
-                        <p class="text-sm">รายจ่าย (เดือนนี้)</p>
-                        <p id="summary-expense" class="text-2xl font-bold">฿0.00</p>
-                    </div>
+                <div class="grid grid-cols-2 gap-4">
                     <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow">
                         <p class="text-sm">รายรับ (เดือนนี้)</p>
                         <p id="summary-income" class="text-2xl font-bold">฿0.00</p>
+                    </div>
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow">
+                        <p class="text-sm">รายจ่าย (เดือนนี้)</p>
+                        <p id="summary-expense" class="text-2xl font-bold">฿0.00</p>
                     </div>
                     <div class="bg-gray-100 border-l-4 border-gray-400 text-gray-700 p-4 rounded-lg shadow">
                         <p class="text-sm">ยอดยกมา</p>
                         <p id="summary-brought-forward" class="text-2xl font-bold">฿0.00</p>
                     </div>
-                    
                     <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg shadow">
                         <p class="text-sm">คงเหลือสุทธิ</p>
                         <p id="summary-balance" class="text-2xl font-bold">฿0.00</p>
@@ -276,10 +281,16 @@
                 updateSummary(monthSelector.value);
             });
 
-            // UPDATED: Summary function now includes today's expenses
+            // UPDATED: Summary function now includes today's summary
             function updateSummary(selectedMonth) {
-                // --- Today's Expense Calculation ---
+                // --- Today's Summary Calculation ---
                 const todayString = new Date().toISOString().substring(0, 10); // Format: YYYY-MM-DD
+                
+                const todayIncome = transactions
+                    .filter(t => t.timestamp.startsWith(todayString) && t.type === 'รายรับ')
+                    .reduce((sum, t) => sum + Number(t.amount), 0);
+                document.getElementById('summary-today-income').textContent = formatCurrency(todayIncome);
+
                 const todayExpense = transactions
                     .filter(t => t.timestamp.startsWith(todayString) && t.type === 'รายจ่าย')
                     .reduce((sum, t) => sum + Number(t.amount), 0);
@@ -465,7 +476,7 @@
             function registerServiceWorker() {
                 if ('serviceWorker' in navigator) {
                     const swCode = `
-                        const CACHE_NAME = 'expense-tracker-cache-v5'; // Cache version bumped
+                        const CACHE_NAME = 'expense-tracker-cache-v6'; // Cache version bumped
                         const SCRIPT_URL_IDENTIFIER = 'script.google.com';
                         const PRECACHE_ASSETS = [
                             '/',
