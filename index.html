@@ -23,7 +23,7 @@
         .bottom-nav .tab-active { background: transparent; color: #667eea; }
         .bottom-nav .tab-btn { transition: all 0.2s ease; }
         .category-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        #syncPopup, #addTransactionModal {
+        #syncPopup {
             transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
         .modal-content {
@@ -37,7 +37,7 @@
 <body class="bg-gray-50">
 
     <!-- Sync Status Popup -->
-    <div id="syncPopup" class="fixed top-4 left-4 z-[60] p-3 rounded-lg text-white card-shadow opacity-0 transform -translate-x-full">
+    <div id="syncPopup" class="fixed top-4 left-4 z-[60] p-3 rounded-lg text-white card-shadow opacity-0 transform -translate-x-full transition-all duration-300">
         <span id="syncMessage"></span>
     </div>
 
@@ -387,13 +387,29 @@
 
         function showSyncStatus(message, status) {
             const syncPopup = document.getElementById('syncPopup');
-            if (!syncPopup) return;
-            syncPopup.textContent = message;
-            syncPopup.className = `fixed top-4 left-4 z-[60] p-3 rounded-lg text-white card-shadow transform transition-all duration-300`;
+            const syncMessage = document.getElementById('syncMessage');
+            if (!syncPopup || !syncMessage) return;
+
+            // 1. Set the message
+            syncMessage.textContent = message;
+
+            // 2. Remove previous color classes
+            syncPopup.classList.remove('bg-blue-500', 'bg-green-500', 'bg-red-500', 'bg-gray-500');
+
+            // 3. Add the new color class
             const colorClass = { syncing: 'bg-blue-500', success: 'bg-green-500', error: 'bg-red-500' }[status] || 'bg-gray-500';
-            syncPopup.classList.add(colorClass, 'opacity-100', 'translate-x-0');
+            syncPopup.classList.add(colorClass);
+
+            // 4. Show the popup
+            syncPopup.classList.remove('opacity-0', '-translate-x-full');
+            syncPopup.classList.add('opacity-100', 'translate-x-0');
+
+            // 5. Set a timer to hide it again, unless it's the 'syncing' message
             if (status !== 'syncing') {
-                setTimeout(() => syncPopup.classList.remove('opacity-100', 'translate-x-0'), 2500);
+                setTimeout(() => {
+                    syncPopup.classList.remove('opacity-100', 'translate-x-0');
+                    syncPopup.classList.add('opacity-0', '-translate-x-full');
+                }, 2500); // Hide after 2.5 seconds
             }
         }
 
