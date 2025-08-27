@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wallet Wise - จัดการเงินอย่างฉลาด</title>
+    
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#764ba2"/>
     <link rel="apple-touch-icon" href="https://placehold.co/192x192/764ba2/ffffff?text=WW">
+    <link rel="manifest" href="manifest.json">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -221,8 +223,8 @@
             budgets: [],
             goals: [],
             categories: {
-                income: ['เงินเดือน', 'โบนัส', 'ขายของ', 'ลงทุน', 'อื่นๆ'],
-                expense: ['อาหาร', 'การเดินทาง', 'ช้อปปิ้ง', 'บิล', 'บันเทิง', 'สุขภาพ', 'การศึกษา', 'ที่พัก', 'อื่นๆ']
+                income: [],
+                expense: []
             }
         };
         let currentType = 'expense';
@@ -269,20 +271,18 @@
         }
         
         function initializePWA() {
-            const manifest = {
-                "name": "Wallet Wise", "short_name": "Wallet Wise", "start_url": ".",
-                "display": "standalone", "background_color": "#f9fafb", "theme_color": "#764ba2",
-                "description": "แอปพลิเคชันจัดการรายรับ-รายจ่ายส่วนตัว",
-                "icons": [
-                    { "src": "https://placehold.co/192x192/764ba2/ffffff?text=WW", "sizes": "192x192", "type": "image/png" },
-                    { "src": "https://placehold.co/512x512/764ba2/ffffff?text=WW", "sizes": "512x512", "type": "image/png" }
-                ]
-            };
-            const manifestURL = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
-            const linkManifest = document.createElement('link');
-            linkManifest.rel = 'manifest';
-            linkManifest.href = manifestURL;
-            document.head.appendChild(linkManifest);
+            // Register Service Worker
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('sw.js')
+                        .then(registration => {
+                            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                        })
+                        .catch(err => {
+                            console.log('ServiceWorker registration failed: ', err);
+                        });
+                });
+            }
         }
 
         // --- Data Handling & Sync ---
