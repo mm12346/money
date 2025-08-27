@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wallet-wise-cache-v1';
+const CACHE_NAME = 'wallet-wise-cache-v1.0';
 const urlsToCache = [
   '/',
   'index.html', // สมมติว่าไฟล์หลักของคุณชื่อ index.html
