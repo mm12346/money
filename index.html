@@ -390,26 +390,21 @@
             const syncMessage = document.getElementById('syncMessage');
             if (!syncPopup || !syncMessage) return;
 
-            // 1. Set the message
             syncMessage.textContent = message;
 
-            // 2. Remove previous color classes
             syncPopup.classList.remove('bg-blue-500', 'bg-green-500', 'bg-red-500', 'bg-gray-500');
 
-            // 3. Add the new color class
             const colorClass = { syncing: 'bg-blue-500', success: 'bg-green-500', error: 'bg-red-500' }[status] || 'bg-gray-500';
             syncPopup.classList.add(colorClass);
 
-            // 4. Show the popup
             syncPopup.classList.remove('opacity-0', '-translate-x-full');
             syncPopup.classList.add('opacity-100', 'translate-x-0');
 
-            // 5. Set a timer to hide it again, unless it's the 'syncing' message
             if (status !== 'syncing') {
                 setTimeout(() => {
                     syncPopup.classList.remove('opacity-100', 'translate-x-0');
                     syncPopup.classList.add('opacity-0', '-translate-x-full');
-                }, 2500); // Hide after 2.5 seconds
+                }, 2500);
             }
         }
 
@@ -475,7 +470,7 @@
         }
 
         function addOrUpdateTransaction() {
-            const transaction = {
+            const newTransaction = {
                 id: editingTransaction ? editingTransaction.id : Date.now(),
                 type: currentType,
                 amount: parseFloat(document.getElementById('amount').value),
@@ -484,19 +479,28 @@
                 date: document.getElementById('date').value
             };
 
-            if (!transaction.amount || !transaction.category || !transaction.date) return;
+            if (!newTransaction.amount || !newTransaction.category || !newTransaction.date) return;
 
             const action = editingTransaction ? 'update' : 'add';
+
             if (action === 'update') {
                 const index = appData.transactions.findIndex(t => t.id == editingTransaction.id);
-                if (index !== -1) appData.transactions[index] = transaction;
+                if (index !== -1) {
+                    const oldTransaction = appData.transactions[index];
+                    // Revert the old transaction's effect before updating
+                    updateAssociatedGoal(oldTransaction, 'subtract');
+                    appData.transactions[index] = newTransaction;
+                }
             } else {
-                appData.transactions.unshift(transaction);
+                appData.transactions.unshift(newTransaction);
             }
+
+            // Apply the new or updated transaction's effect
+            updateAssociatedGoal(newTransaction, 'add');
             
             appData.transactions.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
             saveDataLocal();
-            syncItemToGoogleSheets(action, 'transaction', transaction);
+            syncItemToGoogleSheets(action, 'transaction', newTransaction);
             hideTransactionModal({target: document.getElementById('addTransactionModal')});
             updateAllDisplays();
         }
@@ -862,6 +866,10 @@
             const { id, type } = itemToDelete;
 
             if (type === 'transaction') {
+                const transactionToDelete = appData.transactions.find(t => t.id == id);
+                if (transactionToDelete) {
+                    updateAssociatedGoal(transactionToDelete, 'subtract');
+                }
                 appData.transactions = appData.transactions.filter(t => t.id != id);
             } else if (type === 'budget') {
                 appData.budgets = appData.budgets.filter(b => b.id != id);
@@ -876,6 +884,22 @@
         }
 
         // --- Utility Functions ---
+        function updateAssociatedGoal(transaction, operation) {
+            if (!transaction || transaction.type !== 'expense') {
+                return; // Only applies to expense transactions
+            }
+
+            const matchingGoal = appData.goals.find(g => g.name === transaction.category);
+            if (matchingGoal) {
+                if (operation === 'add') {
+                    matchingGoal.saved = (matchingGoal.saved || 0) + transaction.amount;
+                } else if (operation === 'subtract') {
+                    matchingGoal.saved = Math.max(0, (matchingGoal.saved || 0) - transaction.amount);
+                }
+                syncItemToGoogleSheets('update', 'goal', matchingGoal);
+            }
+        }
+
         function getCategoryIcon(category, type) {
             if (type === 'income') return '💰';
             const icons = {'อาหาร': '🍔', 'การเดินทาง': '🚗', 'ช้อปปิ้ง': '🛍️', 'บิล': '🧾', 'บันเทิง': '🎬', 'สุขภาพ': '💊', 'การศึกษา': '📚', 'ที่พัก': '🏠'};
