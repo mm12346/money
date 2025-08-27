@@ -71,15 +71,11 @@
         <!-- Dashboard Tab -->
         <div id="dashboard-content" class="tab-content p-4">
             <div class="bg-white rounded-2xl p-4 mb-4 card-shadow"><h3 class="text-lg font-semibold mb-4">สัดส่วนรายจ่าย</h3><div class="h-64 flex items-center justify-center"><canvas id="expenseChart"></canvas></div></div>
-            <div class="bg-white rounded-2xl p-4 card-shadow"><h3 class="text-lg font-semibold mb-4">รายการล่าสุด</h3><div id="recentTransactions"><p class="text-gray-500 text-center py-8">ยังไม่มีรายการ</p></div></div>
-        </div>
-
-        <!-- Reports Tab -->
-        <div id="reports-content" class="tab-content p-4 hidden">
             <div class="bg-white rounded-2xl p-4 mb-4 card-shadow">
                 <h3 class="text-lg font-semibold mb-4">ภาพรวมรายรับ-รายจ่ายรายเดือน</h3>
                 <div class="h-72"><canvas id="monthlyTrendChart"></canvas></div>
             </div>
+            <div class="bg-white rounded-2xl p-4 card-shadow"><h3 class="text-lg font-semibold mb-4">รายการล่าสุด</h3><div id="recentTransactions"><p class="text-gray-500 text-center py-8">ยังไม่มีรายการ</p></div></div>
         </div>
 
         <!-- History Tab -->
@@ -203,7 +199,6 @@
     <div class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 z-50">
         <div class="flex justify-around items-center">
             <button class="tab-btn flex flex-col items-center py-2 px-3 rounded-lg tab-active" data-tab="dashboard"><svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM5.03 5.03a.75.75 0 011.06 0l1.06 1.06a.75.75 0 11-1.06 1.06L5.03 6.09a.75.75 0 010-1.06zM2 10a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 012 10zm1.03-3.97a.75.75 0 010 1.06l-1.06 1.06a.75.75 0 11-1.06-1.06L2.97 6.09a.75.75 0 011.06 0zm12.94 0a.75.75 0 011.06 0l1.06 1.06a.75.75 0 11-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zm-2.97 3.97a.75.75 0 010-1.06l1.06-1.06a.75.75 0 111.06 1.06l-1.06 1.06a.75.75 0 01-1.06 0zM10 18a.75.75 0 01-.75-.75v-1.5a.75.75 0 011.5 0v1.5A.75.75 0 0110 18zm-3.97-1.03a.75.75 0 01-1.06 0l-1.06-1.06a.75.75 0 111.06-1.06l1.06 1.06a.75.75 0 010 1.06z"/></svg><span class="text-xs font-medium">ภาพรวม</span></button>
-            <button class="tab-btn flex flex-col items-center py-2 px-3 rounded-lg text-gray-600" data-tab="reports"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span class="text-xs font-medium">รายงาน</span></button>
             <button class="tab-btn flex flex-col items-center py-2 px-3 rounded-lg text-gray-600" data-tab="history"><svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h14a1 1 0 011 1v1a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm2 4a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zm0 5a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z"/></svg><span class="text-xs font-medium">ประวัติ</span></button>
             <button class="tab-btn flex flex-col items-center py-2 px-3 rounded-lg text-gray-600" data-tab="budgets"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg><span class="text-xs font-medium">งบประมาณ</span></button>
             <button class="tab-btn flex flex-col items-center py-2 px-3 rounded-lg text-gray-600" data-tab="goals"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016zM12 9v4m0 4h.01"/></svg><span class="text-xs font-medium">เป้าหมาย</span></button>
@@ -263,7 +258,7 @@
                     if (activeTab) {
                         activeTab.classList.remove('hidden');
                     }
-                    if (btn.dataset.tab === 'reports') {
+                    if (btn.dataset.tab === 'dashboard') {
                         updateMonthlyTrendChart();
                     }
                 });
@@ -375,14 +370,12 @@
             updateSummary();
             updateExpenseChart();
             updateRecentTransactions();
+            updateMonthlyTrendChart();
             updateFilterCategories();
             applyFilters();
             updateBudgetsDisplay();
             updateGoalsDisplay();
             updateCategorySettingsDisplay();
-            if (!document.getElementById('reports-content').classList.contains('hidden')) {
-                updateMonthlyTrendChart();
-            }
         }
 
         function showSyncStatus(message, status) {
